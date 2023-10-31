@@ -1,8 +1,9 @@
-#include <string>
 #include <iostream>
 #include <fstream>
+#include <string>
 #include <map>
 #include <vector>
+#include <sstream>
 
 
 class Ticket {
@@ -159,4 +160,59 @@ private:
         static int id = 1;
         return id++;
     }
+};
+class ConfigReader {
+public:
+    static std::map<std::string, std::vector<std::pair<int, int>>>
+    readConfigFromFile(const std::string &filename) {
+        std::map<std::string, std::vector<std::pair<int, int>>> seatPrices;
+
+        std::ifstream configFile(filename);
+        if (!configFile) {
+            std::cerr << "Error: Cannot open configuration file." << std::endl;
+            exit(1);
+        }
+
+        int numRecords;
+        configFile >> numRecords;
+        configFile.ignore();
+
+        for (int recordIndex = 0; recordIndex < numRecords; ++recordIndex) {
+            std::string record;
+            std::getline(configFile, record);
+            std::istringstream iss(record);
+
+            std::string date, flightNo;
+            int numSeats;
+            iss >> date >> flightNo >> numSeats;
+
+            std::vector<std::pair<int, int>> prices;
+
+
+            for (int j = 0; j < numSeats; ++j) {
+                std::string priceRange;
+                iss >> priceRange;
+
+                size_t dashPos = priceRange.find('-');
+                if (dashPos != std::string::npos) {
+                    int minRow = std::stoi(priceRange.substr(0, dashPos));
+                    int maxRow = std::stoi(priceRange.substr(dashPos + 1));
+
+
+                    int price;
+                    iss >> price;
+
+
+                    prices.push_back(std::make_pair(minRow, price));
+                }
+            }
+
+            seatPrices[flightNo] = prices;
+        }
+
+        configFile.close();
+
+        return seatPrices;
+    }
+
 };
