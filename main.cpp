@@ -4,8 +4,6 @@
 #include <map>
 #include <vector>
 #include <sstream>
-
-
 class Ticket {
 private:
     int bookingID;
@@ -43,6 +41,7 @@ public:
         return ticketPrice;
     }
 };
+
 class Airplane {
 private:
     int numSeats;
@@ -71,7 +70,7 @@ public:
 
     int bookTicket(const std::string& date, const std::string& flightNo, const std::string& seat, const std::string& username) {
         if (!checkSeatAvailability(seat)) {
-            return -1; // Seat not available
+            return -1;
         }
 
 
@@ -161,6 +160,7 @@ private:
         return id++;
     }
 };
+
 class ConfigReader {
 public:
     static std::map<std::string, std::vector<std::pair<int, int>>>
@@ -216,6 +216,7 @@ public:
     }
 
 };
+
 class UserInterface {
 public:
     static void showMenu(Airplane& airplane) {
@@ -300,3 +301,15 @@ public:
         return availableSeats;
     }
 };
+
+int main() {
+    std::map<std::string, std::vector<std::pair<int, int>>> seatPrices = ConfigReader::readConfigFromFile("/Users/kristina_mbp/CLionProjects/Airflight_Booking_System/airplane_config.txt");
+
+
+    Airplane airplane(6, seatPrices);
+
+    UserInterface::showMenu(airplane);
+
+    return 0;
+}
+
