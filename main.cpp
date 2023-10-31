@@ -216,3 +216,87 @@ public:
     }
 
 };
+class UserInterface {
+public:
+    static void showMenu(Airplane& airplane) {
+        while (true) {
+            std::cout << "Enter a command (check, book, return, view, quit): ";
+            std::string command;
+            std::cin >> command;
+
+            if (command == "check") {
+                std::string date, flightNo;
+                std::cout << "Enter date and flight number: ";
+                std::cin >> date >> flightNo;
+                std::vector<std::string> availableSeats = checkAvailableSeats(airplane, date, flightNo);
+                if (!availableSeats.empty()) {
+                    std::cout << "Available seats for " << flightNo << " on " << date << ":" << std::endl;
+                    for (const std::string& seat : availableSeats) {
+                        int price = airplane.getSeatPrice(flightNo, seat);
+                        if (price != -1) {
+                            std::cout << seat << " " << price << "$" << std::endl;
+                        } else {
+                            std::cout << "Price not found for " << flightNo + " " + seat << std::endl;
+                        }
+                    }
+                } else {
+                    std::cout << "No available seats for " << flightNo << " on " << date << "." << std::endl;
+                }
+            } else if (command == "book") {
+                std::string date, flightNo, seat, username;
+                std::cout << "Enter date, flight number, seat, and username: ";
+                std::cin >> date >> flightNo >> seat >> username;
+                int bookingID = airplane.bookTicket(date, flightNo, seat, username);
+                if (bookingID != -1) {
+                    std::cout << "Confirmed with ID " << bookingID << std::endl;
+                } else {
+                    std::cout << "Booking failed. The seat is not available." << std::endl;
+                }
+            } else if (command == "return") {
+                int bookingID;
+                std::cout << "Enter booking ID: ";
+                std::cin >> bookingID;
+                int refundAmount = airplane.returnTicket(bookingID);
+                if (refundAmount != -1) {
+                    std::cout << "Confirmed " << refundAmount << "$ refund." << std::endl;
+                } else {
+                    std::cout << "Booking ID not found." << std::endl;
+                }
+            } else if (command == "view") {
+                std::string option;
+                std::cout << "Enter 'id' to view booking by ID or 'username' to view all user bookings: ";
+                std::cin >> option;
+                if (option == "id") {
+                    int bookingID;
+                    std::cout << "Enter booking ID: ";
+                    std::cin >> bookingID;
+                    airplane.viewBookingInfo(bookingID);
+                } else if (option == "username") {
+                    std::string username;
+                    std::cout << "Enter username: ";
+                    std::cin >> username;
+                    airplane.viewUserBookings(username);
+                } else {
+                    std::cout << "Invalid option. Try again." << std::endl;
+                }
+            } else if (command == "quit") {
+                break;
+            } else {
+                std::cout << "Invalid command. Try again." << std::endl;
+            }
+        }
+    }
+
+    static std::vector<std::string> checkAvailableSeats(Airplane& airplane, const std::string& date, const std::string& flightNo) {
+        std::vector<std::string> availableSeats;
+        for (char row = 'A'; row <= 'F'; ++row) {
+            for (int seat = 1; seat <= 6; ++seat) {
+                std::string seatNumber = std::to_string(seat) + row;
+                if (airplane.checkSeatAvailability(seatNumber)) {
+                    availableSeats.push_back(seatNumber);
+                }
+            }
+        }
+        return availableSeats;
+    }
+};
